@@ -1,0 +1,32 @@
+/* for Map */
+/*.dimmed{position:absolute;top:0;right:0;bottom:0;left:0;z-index:50;width:100%;background:#000;opacity:.5 !important;filter:alpha(opacity=50) !important}*/
+
+/* for AJAX */
+
+/* Sprite Image 
+	X 박스*/
+.spm{display:inline-block;overflow:hidden;width:0;height:0;background:url(http://static.naver.net/maps/ux2013/sp_map_v10.png) no-repeat;white-space:nowrap;line-height:999px;vertical-align:top}
+.spm_spot_close{width:16px;height:16px;background-position:-317px -222px}
+
+/* Spot Layer 
+	text layer*/
+.spotly{position:absolute;top:-70px;left:-38px;width:334px;padding:19px 20px 0;border:1px solid #8d8d8d;background-color:#fff;line-height:15px}
+.spotly .spmh_spot_arrow{position:absolute;bottom:-39px;left:50%;margin-left:-31px}
+.spotly .spotly_act{position:absolute;top:13px;right:14px}
+.spotly .spotly_act .spotly_open,.spotly .spotly_act .spotly_close{display:inline-block;height:14px;margin-right:5px;padding:2px 19px 0 0;border-right:1px solid #eaeaea;background:url(http://static.naver.net/maps/ux2013/sp_map_vertical_v3.png) no-repeat 100% -1335px;color:#444;line-height:16px}
+
+.spotly .spotly_header{position:relative;padding:0 42px 7px 0;border-bottom:2px solid #474c5b;line-height:22px}
+.spotly_theme .spotly_header{padding-right:80px}
+.spotly .spotly_header h3{display:inline}
+.spotly_detail{padding:15px 3px 10px;line-height:20px;zoom:1;width:328px}
+
+/*글씨체 */
+.spotly .sh_flexible .sh_h{*margin-right:7px;font-family:'나눔고딕',NanumGothic,'돋움',Dotum,Helvetica,'Apple SD Gothic Neo',Sans-serif;font-size:23px;letter-spacing:-1px}
+.spotly_flexible,.default_dl,.land_dl{overflow:hidden;zoom:1}
+
+/* Sprite Image PNG-24 
+	말풍선 부분 */
+.spmh{display:inline-block;overflow:hidden;background:url(http://static.naver.net/maps/ux2013/sp_map_high_v2.png) no-repeat;line-height:999px;vertical-align:top}
+.spmh_spot_arrow{width:43px;height:39px;background-position:-146px 0}
+.spmh_spotb_arrow{width:42px;height:39px;background-position:-247px 0}
+.spmh_lyf_arrow{width:29px;height:26px;background-position:-205px 0}

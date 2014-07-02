@@ -1,0 +1,38 @@
+
+
+#xofpp, #closeBoxpp, #playpp, #stoppp, #imageTitlepp{
+	cursor:pointer;
+	margin:0 10px;
+	color:white;
+	float:left;
+}
+#nextButtonBoxpp, #previousButtonBoxpp, #xofpp{
+	cursor:pointer;
+	margin:0 10px;
+	color:white;
+	float:right;
+}
+#gallery, #gallery ul{
+    list-style:none;
+    margin:0 auto;
+    padding:0;
+	 width:900px;
+	 margin-left:100px
+}
+#gallery li{
+    margin:15px 1px;
+    padding:5px;
+    float:left;
+    list-style:none;
+    cursor:pointer;
+	 height:100px;
+}
+
+#gallery li img:hover{
+	border: 3px solid #00bfa8;
+}
+
+#gallery img{
+    border:3px solid #B1ACAC;
+    border-radius:4px
+}

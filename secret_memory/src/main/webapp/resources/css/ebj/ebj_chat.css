@@ -1,0 +1,59 @@
+#wrap {
+	width: 100%;
+	height: 100%;
+	border: 0px solid #aaa;
+}
+	
+#wrap>header {
+	background-color: #545765;
+	border: 1px solid #aaa
+}
+	
+#wrap>header>h1 {
+	font-size: 1.0em;
+	text-align: center;
+	color: #FFF;
+}
+
+#wrap>section {
+	height: 100%;
+	border: 0px solid #F00
+}
+
+#wrap>footer {
+	background-color: #545765;
+	border: 1px solid #FFF;
+	font-size: 0.8em;
+	color: #FFF;
+	text-align: center;
+	padding: 5px 0;
+}
+
+#uid {
+	width: 99%;
+}
+
+#enter {
+	border: 1px solid #aaa;
+	font-size: 1.0em;
+	background-color: #545765;
+	color: #FFF;
+	width: 100%;
+	height: 50px;
+}
+
+#msg {
+	width: 90%;
+	height: 300px;
+	overflow-y: scroll;
+	margin: auto;
+	background: white;
+	border: 1px solid #aaa;
+}
+#edit {
+	text-align: center;
+}
+
+#txt {
+	width: 75%;
+}

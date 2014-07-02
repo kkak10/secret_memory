@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+<mapper namespace="org.ebj.mapper.BoardMapper">
+
+	<insert id="insertMarkerBoard" parameterType="org.ebj.vo.BoardVO">
+		INSERT INTO 
+		tbl_board(boardNo, boardUser, groupListNo, markerNo, boardText, boardNickname, boardImage) 
+		VALUES 
+		(seq_boardNo.nextval, #{boardUser}, #{groupListNo}, #{markerNo}, #{boardText}, #{boardNickname}, #{boardImage})
+	</insert>
+
+	<insert id="insertNoMarkerBoard" parameterType="org.ebj.vo.BoardVO">
+		INSERT INTO 
+		tbl_board(boardNo, boardUser, groupListNo, boardText, boardNickname, boardImage) 
+		VALUES 
+		(seq_boardNo.nextval, #{boardUser}, #{groupListNo}, #{boardText}, #{boardNickname}, #{boardImage})
+	</insert>
+	
+	<select id="selectBoardList" parameterType="org.ebj.vo.BoardVOAdd" resultType="org.ebj.vo.BoardVOAdd">
+        SELECT *
+		FROM 
+			(SELECT ROWNUM AS page_no,tbl_board.boardUser, tbl_board.boardText, tbl_board.boardNickname,
+   			tbl_board.boardNo, tbl_board.boardImage, tbl_user.userImage,tbl_board.boardRegDate ,row_number() OVER (ORDER BY 1) AS num
+       		FROM tbl_board 
+       		FULL OUTER JOIN tbl_user
+        	ON tbl_board.boardUser = tbl_user.userId  
+        	WHERE  tbl_board.groupListNo = ${groupListNo} AND tbl_board.boardText IS NOT NULL ORDER BY boardNo DESC)
+		WHERE (num BETWEEN (${pageNo}-1)*10+1 AND ${pageNo}*10) ORDER BY boardNo DESC
+	</select>
+	
+	<select id="selectBoard" parameterType="org.ebj.vo.MapMarkerVO" resultType="org.ebj.vo.BoardVOAdd">
+		SELECT tbl_board.boardNo, tbl_board.boardText, tbl_board.boardNickname,
+			   tbl_board.boardUser, tbl_board.boardRegDate, tbl_board.boardImage, tbl_user.userImage
+		FROM tbl_user tbl_user, (
+	  		SELECT * 
+	  		FROM tbl_board 
+	  		WHERE markerNo = (
+		    	SELECT markerNo 
+		    	FROM tbl_mapmarker
+		    	WHERE markerX = #{markerX} AND markerY = #{markerY})) tbl_board
+		WHERE tbl_user.userId = tbl_board.boardUser
+	</select>
+	
+	<select id="selectBoardImage" parameterType="java.lang.Integer" resultType="org.ebj.vo.BoardVO">
+		SELECT boardNo, boardText, boardUser, boardNickname, boardImage
+		FROM tbl_board
+		WHERE groupListNo = #{groupListNo} AND boardImage IS NOT NULL
+		ORDER BY boardNo DESC
+	</select>
+	
+	<select id="selectBoardMakerNo" parameterType="java.lang.Integer" resultType="java.lang.Integer">
+		SELECT markerNo
+		FROM tbl_board
+		WHERE boardNo = #{boardNo}
+	</select>
+	
+	<delete id="deleteBoard" parameterType="java.lang.Integer"> 
+	  	DELETE FROM tbl_board
+		WHERE boardNo = #{boardNo}
+  	</delete>
+	
+	<delete id="deleteMarkerBoard" parameterType="org.ebj.vo.MapMarkerVO"> 
+	  	DELETE FROM tbl_board
+		WHERE markerNo = (
+	  		SELECT markerNo 
+	  		FROM tbl_mapMarker
+	  		WHERE  markerX = #{markerX} AND markerY = #{markerY})
+  	</delete>
+</mapper>

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+  
+  <mapper namespace="org.ebj.mapper.CalendarMapper">
+  
+  	<insert id="insertCalendar" parameterType="org.ebj.vo.CalendarVO">
+  		INSERT INTO tbl_calendar(calendarNo, groupListNo, calendarUser, calendarNickname, calendarText,	calendarYear, calendarMonth, calendarDay, calendarColor)
+  		VALUES (seq_calendarNo.nextval, #{groupListNo}, #{calendarUser}, #{calendarNickname}, #{calendarText}, #{calendarYear}, #{calendarMonth}, #{calendarDay}, #{calendarColor})
+  	</insert>
+  	
+  	<select id="selectCalendar" parameterType="java.lang.Integer" resultType="org.ebj.vo.CalendarVO">
+  		SELECT calendarNo, groupListNo, calendarUser, calendarNickname, calendarText, calendarYear, calendarMonth, calendarDay, calendarColor
+  		FROM tbl_calendar WHERE groupListNo = #{groupListNo}
+  	</select>
+  	
+  </mapper>

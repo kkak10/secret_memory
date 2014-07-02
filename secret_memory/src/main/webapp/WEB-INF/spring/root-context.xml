@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.2.xsd">
+	<!-- Root Context: defines shared resources visible to all other web components -->
+	
+	<context:component-scan base-package="org.ebj.mapper" />
+	<context:component-scan base-package="org.ebj.service" />
+	<context:component-scan base-package="org.ebj.email" />
+
+
+	<!-- transaction manager -->
+	<bean id="transactionManager"
+		class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSource" />
+	</bean>
+	
+	<!-- Spring TEST -->	
+	<bean id="springTest" class="java.lang.String">
+		<constructor-arg>
+			<value>Hello Spring</value>
+		</constructor-arg>
+	</bean>
+	
+	
+	
+	<!-- Root Context: defines shared resources visible to all other web components 
+		 Google을 이용한 e-mail 발송
+	-->
+	 <bean id="mailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl">
+		<property name="host" value="smtp.gmail.com"></property>
+		<property name="port" value="587"></property>
+		<property name="protocol" value="smtp"></property>
+		<property name="username" value="orgebj@gmail.com"></property>
+		<property name="password" value="orgebj4885"></property>
+		<property name="javaMailProperties">
+			<props>
+				<prop key="mail.smtp.auth">true</prop>
+				<prop key="mail.smtp.debug">true</prop>
+				<prop key="mail.smtp.starttls.enable">true</prop>
+				<prop key="mail.smtp.EnableSSL.enable">true</prop>
+			</props>
+		</property>
+	</bean> 
+	
+	<!-- JDBC -->
+	<bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource"
+		destroy-method="close">
+		<property name="driverClassName" value="net.sf.log4jdbc.DriverSpy" />
+		<!--  
+		<property name="url"
+			value="jdbc:log4jdbc:oracle:thin:@121.160.208.118:4885:ebj" /> 
+		-->
+		<!-- 내부로 접속 할때  -->
+		<property name="url"
+			value="jdbc:log4jdbc:oracle:thin:@localhost:1521:orcl" />
+		<property name="username" value="lhu" />
+		<property name="password" value="lhu" />
+	</bean>
+	
+	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="dataSource" ref="dataSource" />
+		<property name="mapperLocations" value="classpath*:org/ebj/**/*.xml" />
+	</bean>
+
+	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+		<property name="basePackage" value="org.ebj.mapper" />
+	</bean>
+
+</beans>

@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.ebj.mapper.GroupListMapper">
+
+	<insert id="createGroupList" parameterType="org.ebj.vo.GroupListVO">
+		INSERT INTO
+		tbl_groupList (groupListNo, groupMaster, groupName, groupImage)
+		VALUES
+		(seq_groupListNo.nextval,#{groupMaster},#{groupName},#{groupImage})
+	</insert>
+	
+	<select id="selectGroupNo" parameterType="java.lang.String" resultType="java.lang.Integer"> 
+		SELECT /*+ INDEX_DESC(tbl_groupList index_groupListNo) */ MAX(groupListNo) groupListNo
+		FROM tbl_groupList 
+		WHERE groupMaster=#{groupMaster} 
+	</select>
+	
+	<select id="selectGroupMaster" parameterType="org.ebj.vo.GroupListVO" resultType="java.lang.String"> 
+		SELECT groupMaster 
+		FROM tbl_groupList
+		WHERE groupMaster = #{groupMaster} AND groupListNo = #{groupListNo}
+	</select>
+	
+	<update id="updateGroupName" parameterType="org.ebj.vo.GroupListVO">
+		UPDATE tbl_grouplist
+		SET groupName = #{groupName}
+		WHERE groupListNo = #{groupListNo}
+	</update>
+	
+	<update id="updateMaster" parameterType="org.ebj.vo.GroupListVO">
+		UPDATE tbl_groupList
+		SET groupMaster=#{groupMaster}
+		WHERE groupListNo=#{groupListNo}
+	</update>
+
+	<delete id="deleteGroup" parameterType="java.lang.Integer">
+		DELETE FROM tbl_groupList
+		WHERE groupListNo=#{groupListNo}
+	</delete>
+	
+</mapper>

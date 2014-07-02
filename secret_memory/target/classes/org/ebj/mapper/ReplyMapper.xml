@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+  <mapper namespace="org.ebj.mapper.ReplyMapper">
+  
+  <insert id="insertReply" parameterType="org.ebj.vo.ReplyVO">
+		INSERT INTO tbl_reply(replyNo, boardNo, replyUser, replyNickname, replyText)
+		VALUES (seq_replyNo.nextval, #{boardNo}, #{replyUser}, #{replyNickname}, #{replyText})	
+  </insert>
+  
+  <select id="selectReply" parameterType="java.lang.Integer" resultType="org.ebj.vo.ReplyVO">
+		SELECT replyNo, replyNickname, replyText, replyRegDate
+		FROM tbl_reply WHERE boardNo = #{boardNo}
+		ORDER BY replyNo
+  </select>
+  
+  <delete id="deleteReply" parameterType="java.lang.Integer">
+		DELETE tbl_reply 
+		where replyNo = #{replyNo}
+  </delete>
+  
+  </mapper>

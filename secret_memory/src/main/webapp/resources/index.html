@@ -1,0 +1,1125 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<title> Welcome to the Secret Memory </title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<!-- Bootstrap core CSS -->
+		<link href="css/bootstrap/bootstrap.min.css" rel="stylesheet">
+		<link href="css/bootstrap/bootstrap-theme.min.css" rel="stylesheet">
+		<link href="css/bootstrap/bootstrap-switch.css" rel="stylesheet">
+		
+		<!-- Font-awesome core CSS -->
+		<link href="css/font-awesome/css/font-awesome.min.css" rel="stylesheet">
+		
+		<!-- Glyphicons core CSS -->
+		<link href="css/glyphicons/css/glyphicons.css" rel="stylesheet">
+		
+		<!-- jquery core CSS -->
+		<link href="css/jquery/jquery-ui-1.8.6.custom.css" rel="stylesheet">
+		
+		<!-- fullcalendar core CSS -->
+		<link href="css/fullcalendar/fullcalendar.css" rel="stylesheet">
+		
+		<!-- colorpick core CSS -->
+		<link href="css/colorpick/colorpick.css" rel="stylesheet">
+				
+		<!-- lightbox core CSS -->
+		<link href="css/lightbox/lightbox.css" rel="stylesheet">
+		
+		<!-- gallery core CSS -->
+		<link href="css/ppgallery/ppgallery.css" rel="stylesheet">
+		
+		<!-- Video core CSS -->
+		<link href="css/video-js/video-js.min.css" rel="stylesheet">
+
+		<!-- Add custom CSS here -->
+		<link href="css/ebj/ebj_secretmemory.css" rel="stylesheet">
+		<link href="css/ebj/ebj_chat.css" rel="stylesheet">
+		<link href="css/ebj/ebj_infoWindow.css" rel="stylesheet">
+
+		<!-- Jquery core JS -->
+		<script src="js/jquery/jquery-2.0.3.min.js"></script>
+		<script src="js/jquery/jquery.form.min.js"></script>
+		<script src="js/jquery/jquery.tmpl.min.js"></script>
+		<script src="js/jquery/jquery.tmplPlus.min.js"></script>
+		<script src="js/jquery/jquery-ui.min.js"></script>
+		
+		<!-- Bootstrap-3.0.2 core JS -->
+		<script src="js/bootstrap/bootstrap.min.js"></script>
+		<script src="js/bootstrap/bootstrap-switch.js"></script>
+		
+		<!-- Video core JS -->
+		<script src="js/video-js/video.js"></script>
+		
+		<!-- fullcalendar core JS -->
+		<script src="js/fullcalendar/fullcalendar.min.js"></script>
+		
+		<!-- colorpick core JS -->
+		<script src="js/colorpick/colorpick.js"></script>
+		
+		<!-- ppgallery core JS -->
+		<script src="js/ppgallery/ppgallery.js"></script>
+		
+		<!-- lightbox core JS -->
+		<script src="js/lightbox/lightbox-2.6.min.js"></script>
+		
+		<!-- Naver Map API JS 
+			121.160.208.118 key = bd9accd532bc975a420238d27db0778f
+			localhost key = bb39ff51677e5a4399373c03a9226451
+		-->
+		<script src="http://openapi.map.naver.com/openapi/naverMap.naver?ver=2.0&key=bb39ff51677e5a4399373c03a9226451"></script> 
+		
+		<!-- Daum Map API JS 
+			121.160.208.118 key = f68a887c8fec30affbd2826121aa8f919bec1235
+			localhost key = d6eb92f1c2c73af2a1a522b11bda1cbc33609695
+		-->
+		
+		<!-- socket.io core JS -->
+		<!-- <script src="http://121.160.208.118:4500/socket.io/socket.io.js"></script> -->
+		<script src="http://localhost:4500/socket.io/socket.io.js"></script>
+		
+		<!-- Add custom JS here -->
+		<script src="js/ebj/ebj_chat.js"></script>
+		<script src="js/ebj/ebj_reply.js"></script>
+		<script src="js/ebj/ebj_calendar.js"></script>
+		<script src="js/ebj/ebj_file.js"></script>
+		<script src="js/ebj/ebj_board.js"></script>
+		<script src="js/ebj/ebj_group.js"></script>
+		<script src="js/ebj/ebj_user.js"></script>
+		<script src="js/ebj/loginCheck.js"></script>
+		
+		<script type="text/javascript">
+			<!-- DOM로딩되면 실행 -->
+			
+			var boardInsertboolean = false;	//createMarker 실행후 insertMapBoard 실행하기위한 변수
+			
+			//채팅에서 필요한 변수
+			var room = '';	//방번호
+			//var socket = io.connect("http://121.160.208.118:4500/");	//소켓 객체를 가져옴
+			var socket = io.connect("http://localhost:4500/");	//소켓 객체를 가져옴
+			
+			
+			$(document).ready(function() {
+				//로그인 체크해서 버튼 나오게 
+				loginCheck();
+				
+				//알람창을 숨겨줌
+				$("#alarmWindow").hide(); 
+				
+				//맵 카테고리 숨겨주기 
+				$("#mapCategoryList").hide();
+				
+				//그룹리스트 버튼을 숨겨줌
+				$("#groupListBtn").hide();
+				
+				//자동 슬라이딩을 멈춰줌
+				$("#myCarousel").carousel({
+					interval : false					
+				});
+				//마이페이지 감춰줌 멈춰줌
+				$("#myPage").hide();
+				
+				//로그인을 누르면 로그인창이 나타남
+				$("#menuLogin").click(function(){
+					if ($("#menuLogin").hasClass("dropdown-toggle") == false) {
+						$("#top").animate({"left":"8%"},500); 
+						$("#loginDiv").show(500);					
+					}
+				});
+				
+				//회원가입시 mail체크 및 실시간 중복 체크
+				$("#registId").keyup(keyUp);
+				$("#btnRegister").click(
+						mailCheck
+				);
+				
+				// login 엔터키 구현
+				$("#formLogin").keydown(loginEnter);
+				
+				// regist 엔터키 구현
+				$("#formRegister").keydown(registEnter);
+				
+				//사이드바 들어가고 메인 그룹 윈도우 창이 나온다.
+				$("#sidebar-wrapper").delegate(".sidebar_a", "click", function(){
+					 console.log(this);
+					 selectMaster($(this).attr("data-no"));
+					 selectGroupUserList($(this).attr("data-no"));
+					 $("#selectGroupName").html($(this).html());
+					 $("#groupSlide").append("<div id='groupListNo' style='display:none'data-grade="+ $(this).attr("data-grade") +">"+$(this).attr("data-no")+"</div>");
+
+					 selectBoardList($(this).attr("data-no"));
+					 showCalendar($(this).attr("data-no"));
+					 groupListNoReturn($(this).attr("data-no"));
+					 selectBoardImage($(this).attr("data-no"));
+					 nowLocation();
+					 selectMarker();
+					 $("#chatTitle").html($(this).html() + " TALK");
+					 $("#msg").html('');
+					 $(".makeGroupWindow").hide();
+				});
+		
+				//group 만들기	
+				$("#sidebar-wrapper").delegate("#makeGroup", "click" ,function(){
+			
+					if($(".makeGroupWindow").css("display") == "none"){
+						$(".makeGroupWindow").show("500");
+						$("#top").animate({"left":"10%"},500);
+					}else{
+						$(".makeGroupWindow").hide("500");
+						$("#top").animate({"left":"32%","left":"27%"},500);
+						$("#groupName").val("");
+						$("#createGroupImage").attr("src","img/1.jpg")
+					}
+				});
+
+				//그룹 닫기 버튼을 누르면 슬라이드를 움직여줌
+				$("#closeMainGroupWindow").click(function(){
+					$("#userList").html('');
+					$(".selectGroupName").html('');
+					$("#groupListNo").remove();
+					$("#boardList").html('');
+					$("#boardText").val('');
+					$("#calendar").html('')
+					oMap.clearOverlay();
+					oMap.addOverlay(oLabel);
+					oMap.addOverlay(oInfoWnd);
+					loginCheck();
+					$(".active").removeClass("active");
+					$("#groupSlide").addClass("active");
+					$("#gallery").html('');
+					$("#boardList").html('');
+					pageNo = 0;
+					if($("#chatGroupList").css("display") == "block"){
+						$("#closeChatGroup").trigger("click");
+					}
+				});
+				
+				//그룹 탈퇴
+				$("#groupOut").click(function(){
+					if(confirm("그룹을 삭제하시겠습니까?")==true){
+						if($("#groupListNo").attr("data-grade")=="groupMaster"){
+								updateMaster();
+								alert("마스터님의 삭제 완료");
+							}else{
+								deleteMember();
+								alert("멤버님의 삭제 완료")
+							}
+						
+							$(".mainGroupWindow").css({"top":"70px","left":"-5000px"});
+							$("#groupListNo").remove();
+							$(".selectGroupName").html('');
+							groupListView();
+							$("#groupListNo").remove();
+							$("#sidebar-wrapper").css("left","250px");
+					}
+				});
+				
+				
+				// 그룹 슬라이드 네비게이션 제어 스크립트
+			    $(".slideGroup").click(function(){
+			    	$("#myCarousel").carousel(0);
+			    });
+			    $(".slideMap").click(function(){
+			    	$("#myCarousel").carousel(1);
+			    });
+			    $(".slideBoard").click(function(){
+			    	$("#myCarousel").carousel(2);	
+			    });
+			    $(".slideCalendar").click(function(){
+			    	$("#myCarousel").carousel(3);
+			    	$(".fc-button-today").trigger('click');
+			    });
+			    $(".slideGallery").click(function(){
+			    	$("#myCarousel").carousel(4);
+			    });
+			    $(".slideChat").click(function(){
+			    	$("#myCarousel").carousel(5);
+			    	room = $("#groupListNo").html();
+			    	$("#enter").trigger("click");
+			    });
+			    
+			    //마이페이지 끄기
+			    $("#closeMyPage").click(function(){
+			    	$('#myPage').modal('hide');
+			    });
+			   
+			   //마이페이지에서 수정시 비밀번호가 맞는지 확인 Start
+			   $("#myPagePwCheck").keyup(function(){
+				   if($("#myPagePwCheck").val()==$("#myPagePw").val()){
+					   $(".myPagePwCheck").html("비밀번호가 같습니다.").css("color","Green");
+					 }else{
+						   $(".myPagePwCheck").html("비밀번호가 다릅니다.").css("color","Red");
+					 }
+			   });
+			   
+			   
+			   //카테고리 버튼 클릭
+			   $(".category").click(function(){
+				   selectCategory($(this).attr("data-categoryno"));
+			   });
+			   
+			   //카테고리 전체 나옴
+			   $(".categoryAll").click(function(){
+				   selectCategoryAll();
+			   });
+			   
+			   //마커 클릭후 등록창에서 등록버튼을 누르면 마커가 생기고 글을 등록시켜줌
+			   $("#markerInsert").click(function(){
+				   createMarker();
+				   $('#boardWriteModal').modal('hide');
+			   });
+			   
+			   //글이 있으면 글을 업로드 시켜준다.
+			   $(document).ajaxComplete(function(){
+				   if (boardInsertboolean) {
+					   insertMapBoard(imageUrl);
+					   imageUrl = '';
+				   }
+			   });
+			   
+			   //글 등록 창에서 캔슬을 누르면 내용이 사라짐
+			   $(".boardCancel").click(function(){
+				   $("#mapBoardText").val('');
+				   $("#mapBoardImageView").attr("src","");
+			   });
+			   
+			   //지역 검색 엔터 구현
+			   $("#mapSerch").keydown(function(){
+					if(event.keyCode==13){
+						showAddress()
+					};
+			   });
+			   
+			 //그룹초대 버튼을 누르면 그룹초대 modal창 뜨게하기
+			   $("#groupInvite").click(function(){
+			  		$('#groupInviteModal').modal('show');
+			   });
+			 
+			//그룹명변경 버튼을 누르면 modal창 뜨게하기
+			   $("#updateGroupName").click(function(){
+			  		$('#updateGroupNameModal').modal('show');
+			   });
+			
+			//그룹명 변경에서 change버튼을 누르면 그룹명이 변경됨
+				$("#updateGroupNameBtn").click(function(){
+					if($("#updateGroupNameText").val() != null && $("#updateGroupNameText").val()!= " "){
+						updateGroupName();
+					}else{
+						alert("그룹명을 입력해주세요");
+					}
+					
+				});
+			 
+			 //send 버튼클릭시 메일체크 실행
+			 $(".mailSend").click(function(){
+				mailCheck($(this).html());
+				groupInvite();
+				 $("#userMail").val('');
+				 $("#mailList").html('');
+				$('#groupInviteModal').modal('hide');
+			 });
+				
+			 //그룹 초대창에서  cancel이나 x를 누르면 입력했던 정보가 사라짐.
+			 $(".mailcancel").click(function(){
+				 $("#userMail").val('');
+				 $("#mailList").html('');
+				 $('#groupInviteModal').modal('hide');
+			 })
+			 
+			  //reFresh를 클릭하면 다시 글을 받아옴
+			 $("#boardRefresh").click(function(){
+				 selectBoardList();
+			 })
+			 
+			 //board에서 글쓰기 누르면 글이써짐
+			 $("#boardWrite").click(function(){
+				 insertBoard(imageUrl);
+				 imageUrl = '';
+			 })
+			 
+			 //groupUserList 뿌려주기
+			 $("#userList").delegate(".dropdown-user", "click" , 
+					function(){
+				        //버튼은 data-for속성은 .cyruxx로 되어있음
+				        var dataFor = $(this).attr('data-for');
+
+				        //.cyruxx를 선택함 --> .cyruxx는 슬라이드 부분에 적용되어있음 --> 슬라이드 부분을 선택함
+				        var idFor = $(this).parents().next();
+				        //슬라이드 버튼을 변수로 지정
+				       	
+				        var currentButton = $(this);
+		
+				        //클릭하면 슬라이드 내려왔다 올라왔다(Toggle)함.인터벌이 400(0.4초)
+				        idFor.toggleClass("groupUserHide"); 
+				        if(idFor.is(':visible')){
+			                currentButton.html('<i class="glyphicon glyphicon-chevron-up text-muted"></i>');
+			            }else{
+			                currentButton.html('<i class="glyphicon glyphicon-chevron-down text-muted"></i>');
+			            }
+
+				});
+			 
+			 // 클릭시 취소버튼을 누르면 달력입력창 내용 사라짐
+			 $("#calendarCancel").click(function(){
+				 $("#calendarBoradText").val('')
+			 });
+			 
+			 // 클릭시 내용이 있으면 등록시켜준다.
+			 $("#calendarInsert").click(function(){
+				  var calendarText = $("#calendarBoradText").val()
+				  if(calendarText != '' && calendarText != null){
+					  insertCalendar(calendarText,thisDate);
+					  $("#calendarCancel").trigger('click');
+				  }
+			  });
+			 
+			//사진을 바뀌면 업로드 한다.
+		 	$("#myPageImageUploadForm").on('change','#myPageImageUpload', 
+				function(){ 
+			 		 UserImageUpload(); 
+				});
+			
+			//프로필 수정버튼을 누르면 수정됨.
+			$("#updateUserBtn").click(function(){
+				updateUser(imageUrl);
+			});
+			
+			//그룹만들기 버튼을 누르면 만들어짐.
+			$("#createGroupBtn").click(function(){
+				groupCreate(imageUrl);
+			});
+		 
+			//마이 페이지와 게시판에서 선택한사진 등록
+			$('.imageRegistBtn').click(function(){
+		/* 		if ($(".active").attr("id") =="boardSlide") {
+					
+				} else if ($(".active").attr("id") =="mapSlide"){
+				
+				} else if ($(".makeGroupWindow").css("display") == "block"){
+					
+				}else{
+					updateUserImage(imageUrl);
+				} */
+				
+				$('.lb-close').trigger('click');
+				alert('등록완료.')
+			});
+			
+			//x버튼 클릭시 alarmWindow 닫기
+			$("#alarmClose").click(function(){
+				alarmWindowClose();
+			});
+			
+			//알람창 밖을 클릭시 alarmWindow 닫기
+			$("#alarmBackground").click(function(){
+				alarmWindowClose();
+			});
+			
+			// 클릭시 취소버튼을 누르면 달력입력창 내용 사라짐
+			 $("#calendarCancel").click(function(){
+				 $("#calendarBoradText").val('')
+			 });
+			 
+			 // 클릭시 내용이 있으면 등록시켜준다.
+			 $("#calendarInsert").click(function(){
+				  var calendarText = $("#calendarBoradText").val()
+				  if(calendarText != '' && calendarText != null){
+					  insertCalendar(calendarText,thisDate);
+					  $("#calendarCancel").trigger('click');
+				  }
+			  });
+			 
+			 //슬라이드 상단의 캘린더 버튼을 누르면 toDay버튼을 눌리게만듬.
+			 $(".slideCalendar").click(function(){
+				 $(".fc-button-today").trigger('click');
+			 })
+			 
+			 //캘린더에서 색상표를 나오게하는 스크립트
+			 $('.color-box').colpick({
+					colorScheme:'light',
+					layout:'rgbhex',
+					color:'ff8800',
+					onSubmit:function(hsb,hex,rgb,el) {
+						$(el).css('background-color', '#'+hex);
+						$(el).colpickHide();
+					}
+				})
+				.css('background-color', '#ff8800');
+			 
+			 //칼라 선택하는 colorpick 위로 올림
+			 $(".colpick").css("z-index","1060");
+			 
+			 $(".fc-button-month").css("display","none");
+			 
+			 
+			//댓글 보여주기
+			$("#boardList").delegate(".replyListBtn","click",function(){
+				var insertReplyBtn = $(this);
+			
+			    selectReplyList($(this).attr("data-boardNo"),insertReplyBtn);
+			});
+				 
+			//댓글 등록하기
+			$("#boardList").delegate("#insertReply","click",function(){
+				var insertReplyBtn = $(this);
+				var replyList = $(this).parents().parents().prev();
+		
+				insertReply($(this).attr("data-boardNo"),insertReplyBtn,replyList);
+			});
+			
+			//글 등록시 파일선택
+			$("#boardImage").click(function(){
+				$("#boardImageUpload").trigger("click");
+			});
+			
+			//사진을 바뀌면 업로드 한다.
+		 	$("#boardImageUploadForm").on('change','#boardImageUpload', 
+				function(){
+		 			boardImageUpload();
+			});
+			
+			//map에서 정보창 x버튼 누르면 info창이 사라짐
+		 	$("#map").delegate("#infoClose", "click", function(){
+		 		oInfoWnd.setVisible(false);
+		 	});
+			
+		 	//map에서 정보창 delete버튼 누르면 deleteMarkerBoard ajax호출
+		 	$("#map").delegate("#infoDelete", "click", function(){
+		 		deleteMarkerBoard(oTarget.getPoint());
+		 	});
+		 	
+		 	//map modal에서 이미지버튼 클릭시 강제클릭
+			$("#markerInsertImage").click(function(){
+				$("#mapBoardImageUpload").trigger("click");
+			});
+			
+			//map modal에서 사진을 바뀌면 업로드 한다.
+		 	$("#mapBoardImageUploadForm").on('change','#mapBoardImageUpload', 
+				function(){
+		 			mapBoardImageUpload();
+			});
+			
+			//오토 스크롤
+		 	$("#boardList").scroll(function(){
+				//스크롤 위치
+				console.log($("#boardList").scrollTop());
+			
+				//스크롤바 크기
+				console.log($("#boardList").css("height").replace('px',''));
+				
+				//전체 스크롤값
+				console.log($("#boardList")[0].scrollHeight);
+				
+				if(Number($("#boardList").scrollTop()) +  Number($("#boardList").css("height").replace('px','')) >= $("#boardList")[0].scrollHeight ){
+					selectBoardList($("#groupListNo").html());
+				}
+	
+			});
+			
+		 	 //Node 채팅 스크립트
+	 		$("#chatGroupList").delegate(".chatGroup","click",function(e){
+	 			$(".chatLine").remove();
+	 			console.log($(this).children().text()); 
+	 			joinChat($(this).attr("data-no"),$(this).children().find("span:eq(1)").text());
+				//컨트롤러를 통해 로그인한 유저의 닉네임을 받음
+				
+				console.log("data-no :",$(this).attr("data-no"));
+			});
+		 	
+			//채팅 들어왔을때 기능
+			socket.on('firstJoin', function(nick_name) {
+				$('.chatLast').before('<li class="chatLine" style="text-align:left">'+nick_name+'님이 접속하셨습니다.</li>');
+				scrollDonw();
+			});
+			
+			//채팅기능
+			socket.on('line', function(line) {
+				$('.chatLast').before('<li class="chatLine" style="text-align:left">' + line + '</li>');
+				scrollDonw();
+			});
+			
+			//채팅에서 나가는 기능
+			socket.on('leave',function(nick_name) {
+				$('.chatLast').before('<li class="chatLine" style="text-align:left">' + nick_name + '님이 퇴장하셨습니다.</li>');
+				scrollDonw();
+			});
+		
+			//채팅에서 엔터 기능
+			$("#chatText").keypress(function(ent) {
+				if (ent.which == 13) {
+					if($("#chatText").val() != ''){
+						socket.emit('eventMessage', {
+							eventMessage : $("#chatText").val()
+						});
+					}
+					$("#chatText").val('');
+				}
+			});
+			
+			//채팅방을 누르면 올라갔다내려오면서 채팅이 나옴
+			$("#chatGroupList").delegate(".chatGroup","click",function(e){
+				 e.stopPropagation();
+				 $("#chatGroupList").slideUp("fast",function(){
+					 $(".chatGroup").hide()
+					 $("#chatGroupList").slideDown()
+				 })
+			});
+			
+			//채팅하기 누르면 그룹목록창이 나옴
+			$("#menuChat").click(function(){
+				$("#chatGroupList").show();
+			});
+			
+			//채팅닫기 누르면 채팅방에서 나가지고 채팅창이 닫힘
+			$("#closeChatGroup").click(function(){
+				socket.emit('leave');
+				$("#chatGroupList").slideUp()
+				$(".chatActivity").hide();
+				$(".chatGroup").show();
+			})
+			
+			//갤러리에서 이미지를 누를때 밑에 등록하기가 안나오게 함.
+			$("#gallery").delegate(".example-image","click",function(){
+				if($("#gallerySlide").hasClass("active")){
+					$(".lb-caption").remove();
+				}
+			})
+			
+			//그룹등록에서 캔슬창을 누르면 닫힘
+			$(".createGroupCancel").click(function(){
+				$(".makeGroupWindow").hide("500");
+				$("#top").animate({"left":"32%","left":"27%"},500);
+				$("#groupName").val("");
+				$("#createGroupImage").attr("src","img/1.jpg")
+			});
+			
+			//그룹등록에서 이미지버튼를 누르면 파일이 나옴
+			$("#createGroupImageButton").click(function(){
+				$("#createGroupImageFile").trigger("click");
+			});
+			
+			//그룹등록시 이미지를 선택하면 라이트박스를 띄워줌
+		 	$("#createGroupImageFile").change(function(){
+		 		groupImageUpload();
+			});	 
+			
+			//그룹리스트를 누르면 나오게해줌
+			$("#groupListBtn").click(function(){
+				$(".sidebar-nav").slideToggle();
+			});
+			
+			//맵 카테고리를 누르면 슬라이드 효과가 일어나면서 나타남
+			$("#mapCategoryBtn").click(function(){
+				$("#mapCategoryList").slideToggle();
+			});
+			
+			//글 삭제를 누르면 글삭제댐
+			$("#boardList").delegate(".removeBoard","click",function(){
+				deleteBoard($(this).attr("data-boardNo"),$("#groupListNo").html());
+			});
+			
+		});//end of ready
+		</script>
+		<style>
+			@media (max-width: 768px) {
+				#video_background{
+					display:none;
+				}
+				#mediaTest{
+					width:100%;
+					height:100%;
+					background-color:gray;
+					z-index:1
+				}
+			}
+		</style>
+	</head>
+	
+	<body>
+	<!-- 배경 비디오 시작 -->
+		<video id="video_background" preload="auto" autoplay loop muted> 
+			<source src="video/shine.mp4" type='video/mp4' />
+		</video>
+		<div id="mediaTest">
+			
+		</div>		
+	<!-- 배경 비디오 끝 -->
+	
+	<!-- 알림창 Start -->
+    <div id="alarmWindow">
+    	<a href="#" id="alarmClose" class="pull-right"><img src="img/lightbox/close.png"/></a>
+    	<br />
+    	추억이 있는 장소 근처에 왔습니다.<br /><br />
+    	<div id="alarmGroupList">
+    	</div><br /><br />
+	</div>
+	<section id="alarmBackground" style="z-index:1999"></section>
+	<!-- 알림창 End -->
+	
+	<!-- 그룹 내용 modal 시작 -->
+	<div class="modal fade" id="groupWindowModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+		<div class="modal-dialog" style="width:85%;top:50px;">
+			<div class="modal-content" style="height:750px;">
+						<div class="modal-header">
+							<div class="navigationBtn" style="text-align:center;">
+							<i class="icon-large icon-volume-off"></i><span id="selectGroupName" class="selectGroupName pull-left" style="width:auto;height:34px;font-size:20px;padding-top:5px;"></span>
+								<button class="btn slideGroup"><i class="glyphicon glyphicon-user"></i>Group</button>
+						        
+						        <button class="btn slideMap"><i class="glyphicon glyphicon-map-marker"></i>Map</button>
+						        
+						        <button class="btn slideBoard" ><i class="glyphicon glyphicon-list-alt"></i>Board</button>
+						        
+						        <button class="btn slideCalendar" ><i class="glyphicon glyphicon-calendar"></i>Calendar</button>
+
+						    	<button class="btn slideGallery" ><i class="glyphicon glyphicon-picture"></i>Gallery</button>
+						        
+						        <a href='#' class="pull-right" data-dismiss="modal" id="closeMainGroupWindow" title="그룹 닫기" ><img src="img/lightbox/close.png"/></a>
+							<span id="menuChat" class="dropdown pull-right" style="display:none">
+			                <a href="#" class="dropdown-toggle" data-toggle="dropdown" style="color:white;font-size: 20px;font-weight:bold">
+			                	<span class="glyphicon glyphicon-comment" style="font-size:30px;margin-right:10px;color:#ff8888"></span>
+		                     </a>
+		                    <ul id="chatGroupList" class="dropdown-menu style-10" style="border-radius:5px;width:250px;overflow-y:auto;max-height:350px;max-width:250px;word-break:break-all">
+								<ul id="chatActivity" class="chatActivity" style="list-style:none;margin:0;padding:0">
+									<li id="chatJoinGroupName" class="text-center chatActivity"></li>
+									<li class="divider chatActivity chatActivitydivider"></li>
+									<li class="chatActivity chatLast"><input id="chatText" type="text" class="form-control" placeholder="내용을 입력해주세요" required="" style="margin:0;padding:0" /></li>
+								</ul>
+		                        <li class="divider"></li>
+		                        <li><a id="closeChatGroup" href="#" class="text-center">닫기</a></li>
+		                    </ul>
+	                	</span>
+							</div>
+						</div>
+						
+						<div id="modal-body" class="modal-body" style="background:url('img/background.jpg');min-height:640px;hegiht:640px">
+							<div id="myCarousel" class="carousel slide">
+							 <div class="carousel-inner" style="width:auto">
+								<!--그룹 슬라이드 창 Start -->
+						        	<div id="groupSlide" class="active item" style="height:500px;">
+							        		<div style="height:50px">
+								        		<input type="button" id="groupInvite" style="margin-left:50px" class="btn btn btn-pramary pull-left" value="그룹초대">
+											 
+												<input type="button" id="updateGroupName" style="margin-left:10px" class="btn btn btn-pramary pull-left" value="그룹명 변경">
+											
+								        		<input type="button" id="groupOut" style="margin-right:50px" class="btn btn btn-danger pull-right" value="그룹탈퇴"><br />
+							     			</div>
+						            	
+						            	<div style="color:white;overflow-y:auto;max-height:430px;padding-left:60px;padding-top:45px"  id="userList" class="style-10">	
+						            	</div>
+						            </div>
+						       <!--그룹 슬라이드 창 End -->
+									       
+								<!--맵 슬라이드 창 Start -->         
+					            <div id="mapSlide" class="item">
+						    	<span id="mapAlarm" class="make-switch switch-small" data-text-label="Alarm">
+							    	<input type="checkbox" checked>
+							    </span>
+															
+								
+								<a href="#boardWriteModal" id="openModal" data-toggle="modal"></a>
+									<div id="mapSearch" style="float:right;margin-top:50px;">
+					            		<input id="mapSerch" type="text">
+					            		<input type="button" value="검색" class="btn" onClick="showAddress()">
+						            	<div id="showAddress"></div>
+					            	</div>
+				 					<!--  맵 Start  -->
+					            	<div id="map" style="border:1px solid #000;margin-top:10px;">
+					            		<div style="position:absolute;top:65px;left:15px;z-index:2000">
+						            		<button id="mapCategoryBtn" class="btn btn-success"><span class="glyphicon glyphicon-th-large"></span></button>
+						            		<ul id="mapCategoryList" style="list-style:none;margin-left:-40px;margin-top:10px">
+											    <li style="margin-bottom:5px"><button style="background-color: olivedrab;color: white;" class="btn categoryAll mapCategory mapCategoryText">All</button></li>
+											    <li style="margin-bottom:5px"><button style="background-color: olivedrab;;" class="btn category mapCategory" data-categoryno="1"><i style="color:white;font-size:25px" class="fa fa-cutlery"></i></button></li>
+											    <li style="margin-bottom:5px"><button style="background-color: olivedrab;;" class="btn category mapCategory" data-categoryno="2"><i style="color:white;font-size:25px" class="fa fa-home"></i></button></li>
+											    <li style="margin-bottom:5px"><button style="background-color: olivedrab;" class="btn category mapCategory" data-categoryno="3"><i style="color:white;font-size:25px" class="fa fa-coffee"></i></button></li>
+											    <li style="margin-bottom:5px"><button style="background-color: olivedrab;" class="btn category mapCategory" data-categoryno="4"><i style="color:white;font-size:25px" class="fa fa-plus-square"></i></button></li>
+											    <li style="margin-bottom:5px"><button style="background-color: olivedrab;color: white;" class="btn category mapCategory mapCategoryText" data-categoryno="5">ETC</button></li>
+											</ul>
+										</div>
+					            	</div>
+					            
+					            	<!--  맵 END  -->
+					            </div>
+					            <!--맵 슬라이드 창 End -->
+					            <!--게시판 슬라이드 창 Start -->
+						            <div id="boardSlide" class="item" style="height:570px">
+						            	<h1 style="color:white">
+						            	 <button type="button" id="boardWriteToggleBtn" class="btn btn-primary btn-xs" data-toggle="collapse" data-target="#board">
+											<span class="glyphicon glyphicon-list"></span>
+						                    </button> 
+						                   </h1>
+						            	<!--  게시판 Start  -->
+						                   <div id="board" style="margin-top:20px;margin-left:40px;width:921px;max-height:160px;margin-bottom:20px" class="collapse">
+						                       <div class="panel-default" style="width:100%;margin:0">
+						                           <div>                
+						                            <textarea id="boardText" class="form-control counted" name="message" placeholder="Type in your message" rows="5" style="margin-bottom:10px;resize:none;width:921px"></textarea>
+						                            <button id="boardWrite" class="btn btn-info" type="button">Write</button>
+						                            <button id="boardRefresh" class="btn btn-info" type="button">refresh</button>
+						                            <button id="boardImage" class="btn btn-info" type="button">Image</button>
+						                            <img id="boardImageView" style="width:60px; margin-left:50px;"/>
+						                            <form id="boardImageUploadForm" enctype="multipart/form-data" action="javascript:boardImageUpload()">
+												        <input id="boardImageUpload" name="boardImageUpload" type="file" style="display:none"/>
+												        <a id="boardLightBox" data-lightbox="image-1"></a>
+													</form>
+						                           </div>
+						                       </div>
+						                   </div>
+							            
+							            <div id="boardList" class="style-10" style="overflow-y:auto;max-height: 500px;margin:0 40px">
+							     
+							            </div>
+							            <!--  게시판 END  -->   
+						            </div>
+						            <!--게시판 슬라이드 창 End -->
+						          	 <div id="calendarSlide" class="item">
+	            					 	<div id='calendar'></div>
+										<button id='modalBtn' class='btn' data-toggle='modal' data-target = '#calendarWriteModal' style="display:none"></button>
+	            					 </div>
+	            					 
+						            <!--  갤러리 Start  -->
+						            <div id="gallerySlide" class="item">
+						            	<div class="style-10" style="max-height:550px;height:550px;overflow-y: auto;overflow-x: hidden;">
+						            		<ul id="gallery"></ul>
+						            	</div>
+						            </div>
+						 			<!--  갤러리 END  -->
+		           			</div><!-- 캐러젤 이너 End -->
+						</div><!--  캐러젤 End -->
+					</div><!--  modal-body End -->
+						
+					<div class="modal-footer" style="margin-top:0">
+		            			
+		            </div>
+				</div>
+		</div><!-- /.modal-content -->
+	</div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+	<!-- 그룹 내용 modal 끝 -->
+					
+	<!-- Map에서 Board 작성 modal 시작 -->
+	<div class="modal fade" id="boardWriteModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div>
+					<div class="modal-header">
+						<button type="button" class="close boardCancel" data-dismiss="modal" aria-hidden="true">x</button>
+					<h3 class="modal-title" id="myModalLabel">Regist</h3>
+					</div>
+					<div id="modal-body" class="modal-body" style="max-height:570px">
+						<select class="form-control" style="width:200px">
+							<option value="1">음식점</option>
+							<option value="2">숙박</option>
+							<option value="3">카페</option>
+							<option value="4">병원</option>
+							<option value="5">ETC</option>
+						</select>	
+						<textarea id="mapBoardText" class="span4" style="width:520px;margin-bottom:10px;" placeholder="Type in your message" rows="5"></textarea>
+						<br />
+		                <button id="markerInsert" class="btn btn-primary">Regist</button>
+		                <button id="markerInsertImage" class="btn btn-primary">Image</button>
+		                <button id="boardCancel" class="btn btn-danger boardCancel" data-dismiss="modal">cancel</button>
+					    <img id="mapBoardImageView" style="width:60px; margin-left:50px;"/>
+						<form id="mapBoardImageUploadForm" enctype="multipart/form-data" action="javascript:mapBoardImageUpload()">
+					        <input id="mapBoardImageUpload" name="mapBoardImageUpload" type="file" style="display:none"/>
+					        <a id="mapBoardLightBox" data-lightbox="image-1"></a>
+						</form>
+					</div>
+					<div class="modal-footer">
+						
+					</div>
+				</div><!-- /.loginWindow -->
+			</div><!-- /.modal-content -->
+		</div><!-- /.modal-dialog -->
+	</div><!-- /.modal -->
+	<!-- Board 작성 modal 끝 -->
+	
+	<!-- 그룹초대 modal 시작 -->
+	<div class="modal fade" id="groupInviteModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div>
+					<div class="modal-header">
+						<button type="button" class="close mailcancel" data-dismiss="modal">x</button>
+					<h3 class="modal-title" id="myModalLabel">그룹초대</h3>
+					</div>
+					<div id="modal-body" class="modal-body">
+						<h5>초대 할 유저의 E-mail을 입력해주세요</h5>
+						<div id="mailList">
+						
+						</div>
+						<input id="userMail" type="text">
+						<button class="btn" type="button" onClick="mailAddList()">add</button>
+						<div id = "mailCheck">
+						</div>
+						<button class="btn mailSend" type="button">send</button>
+                		<button  class="btn mailcancel" type="button">cancel</button>
+						
+					</div>
+					<div class="modal-footer">
+						
+					</div>
+				</div><!-- /.loginWindow -->
+			</div><!-- /.modal-content -->
+		</div><!-- /.modal-dialog -->
+	</div><!-- /.modal -->
+	<!-- 그룹 초대 modal 끝 -->
+	
+	<!-- 그룹명 변경 modal 시작 -->
+	<div class="modal fade" id="updateGroupNameModal"  tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+		<div class="modal-dialog" style="width:350px;top:260px">
+			<div class="modal-content">
+				<div>
+					<div class="modal-header">
+						<button type="button" class="close updateGroupModalCancel" data-dismiss="modal">x</button>
+					<span>그룹명 변경</span>
+					</div>
+					<div id="modal-body" class="modal-body">
+						<span>변경하실 이름을 작성해주세요.</span><br />
+						<input id="updateGroupNameText" type="text">
+						<button id="updateGroupNameBtn" class="btn" type="button">Change</button>
+					</div>
+					<div class="modal-footer">
+					</div>
+				</div><!-- /.loginWindow -->
+			</div><!-- /.modal-content -->
+		</div><!-- /.modal-dialog -->
+	</div><!-- /.modal -->
+	<!-- 그룹명 변경 modal 끝 -->
+	
+	<!-- 달력 입력 modal 시작 -->
+	<div class="modal fade" id="calendarWriteModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div>
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
+					<h3 class="modal-title" id="myModalLabel">Regist</h3>
+					</div>
+					<div id="modal-body" class="modal-body" style="padding-top : 2px">
+					
+					<span id="test">
+					</span>
+					<span>
+						<div id="calendarColor" class="color-box pull-right" style="margin-top:7px"></div>
+					</span>
+										
+					<textarea id="calendarBoradText" class="span4" style="width:537px;margin-bottom:10px" id="new_message" name="new_message" placeholder="Type in your message" rows="5"></textarea>
+					<br />
+						<div class="pull-right" style="margin-bottom:2px" >
+		                <button id="calendarInsert" class="btn btn-primary">Regist</button>
+		                <button id="calendarCancel" class="btn btn-danger" data-dismiss="modal">cancel</button>
+						</div>	
+					</div>
+					<div class="modal-footer" style="margin-top:25px">
+					</div>
+				</div><!-- /.loginWindow -->
+			</div><!-- /.modal-content -->
+		</div><!-- /.modal-dialog -->
+	</div>
+	<!-- 달력 입력 modal 끝 -->
+		
+    <!-- 그룹 등록창 Start -->
+    	        <div class="col-md-4 col-md-offset-4 makeGroupWindow" style="width:390px">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <i class="glyphicon glyphicon-user"></i>group<button type="button" class="close createGroupCancel">x</button></div>
+
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-xs-4">
+                            <img id="createGroupImage" src="img/1.jpg" style="width:100px;height:108px">
+                        	<a id="groupLightBox" href="" data-lightbox="image-1"></a>
+                        </div>
+
+                        <div class="col-xs-8">
+                             <label for="groupName" class="control-label" style="margin-bottom:0"> 
+                                <p class="help-block" style="margin-top:0">GroupName</p>
+                            </label>
+                            <div class="input-group" >
+                                <span class="input-group-addon">*</span><input type="text" id="groupName" class="form-control" placeholder="GroupName" >
+                            </div>
+                        <div class="pull-right" style="margin-top:10px">                
+                             <input type="button" id="createGroupImageButton" class="btn btn-success" value="Image"  />
+                             <input id="createGroupBtn" type="button" class="btn btn-success" value="Create"/>
+                             <form id="groupImageUploadForm" enctype="multipart/form-data" action="javascript:groupImageUpload()">
+                             	<input type="file" id="createGroupImageFile" name="createGroupImageFile" value="Image" style="display:none"  />   
+                             </form>
+                        </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="panel-footer">
+                
+            </div>
+        </div>
+    </div>
+ 	<!-- 그룹 등록창 END -->
+
+	<!--  마이페이지 Start -->
+	<div class="modal fade" id="myPage" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div>
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
+						<h3 class="modal-title" id="myModalLabel">MyPage</h3>
+					</div>
+					<div id="modal-body" class="modal-body" style="padding-top : 2px">
+						<div class="row" style="margin-top:10px;">
+				            <div class="col-xs-6" style="padding-left:10px;">
+		                        <form id="myPageImageUploadForm" enctype="multipart/form-data" action="javascript:UserImageUpload()">
+			                    	<img id="myPageImageView" src="http://placehold.it/380x500" class="img-rounded img-responsive" />
+									<input id="myPageImageUpload" name="myPageImageUpload" type="file"/>						
+									<a id="myPageLightBox" data-lightbox="image-1"></a>
+			                 	</form>
+				            </div>
+				            <div class="col-xs-6" style="padding-left:5px;">
+			                    <form class="form-horizontal">
+			                    	<p class="help-block">ID</p>
+			                       	<div id="myPageId"></div>
+									<p class="help-block">Name</p>
+			                      	<div id="myPageName"></div>
+			                        <p class="help-block">PassWord</p>
+			                        <div class="input-group" style="width:258px">
+ 										<span class="input-group-addon">*</span><input type="password" id="myPagePw" class="form-control" placeholder="Password" >
+									</div>
+			                        <p class="help-block">Confirm</p>
+			                        <div class="input-group" style="width:258px">
+									<span class="input-group-addon">*</span><input type="password" id="myPagePwCheck" class="form-control" placeholder="Password" >
+									</div>
+									<p class="help-block">Nickname</p>
+			                        <div class="input-group" style="width:258px">
+ 										<span class="input-group-addon">*</span><input type="text" id="myPageNickname" class="form-control" placeholder="Nickname">
+									</div>
+									<p class="help-block">RegistDate</p>
+			                        <div id="myPageRegDate"></div>
+			                    </form>
+				             </div>
+				        </div>
+					</div>
+					<div class="modal-footer" style="margin-top:25px">
+						<div class="help-block">
+							<button type="button" class="btn btn-large btn-info pull-left" onClick="deleteUser()">sign out</button>
+                        	<button id="updateUserBtn" type="button" class="btn btn-large btn-info" style="width:70px;">Edit</button>
+                        	<button type="button" class="btn btn-large btn-info" id="closeMyPage">Cancel</button>
+                        </div>
+					</div>
+				</div><!-- /.loginWindow -->
+			</div><!-- /.modal-content -->
+		</div><!-- /.modal-dialog -->
+	</div>
+ 	<!--  마이페이지 END -->
+ 
+	<!-- 사이드 바 Start-->
+    <div id="sidebar-wrapper" style="background:none;">	
+        <ul class="sidebar-nav" style="display:none;top:40px">
+        	<!--그룹 리스트 목록이 들어감-->      
+        </ul>
+      </div>
+	<!-- 사이드 바 END.-->
+	
+	<!-- 상단 바 START -->
+    <nav class="navbar navbar-fixed-top" style="transition-duration:2s" role="navigation">
+		<div class="container" style="width: 97%;"> 
+			<div class="navbar-header">
+				<a class="navbar-brand" style="color:white;font-size:20px;font-weight:bold" href="index.html">Secret Memory</a>
+				<a id="groupListBtn" href="#" class="btn btn-primary btn-lg toggle"><i class="glyphicon glyphicon-bookmark"></i></a>
+			</div>
+
+			<!-- 메뉴목록 -->
+			<div class="collapse navbar-collapse navbar-ex1-collapse pull-right">
+				<ul class="nav navbar-nav navbar-right">
+                	<!-- <b class="caret" ></b> -->
+               		<li class="dropdown" >
+               		 	<a id="menuLogin" href="#" style="color:white;font-size:20px;font-weight:bold">Login</a>
+	                    <ul class="dropdown-menu">
+	                        <li><a id="menuMyPage" href="#myPage" data-toggle="modal" onClick="myPageView()"><span class="glyphicon glyphicon-user"></span>　Profile</a></li>
+	                        <li class="divider"></li>
+	                        <li><a id="menuLogout" href="#" onclick="userLogout()"><span class="glyphicon glyphicon-off"></span>　Logout</a></li>
+	                    </ul>
+                	</li>
+            	</ul>
+			</div>
+		</div>
+	</nav>
+	<!-- 상단  바 END -->
+	
+	<!-- 메인 텍스트 로딩 START -->
+    <div id="top" class="header" style="width:0;height:0;top:32%;left:26%;color:white">
+		<div class="vert-text">
+			<img src="img/logo.png" style="width:100px;" /><h1>Secret Memory</h1>
+			<h3>Share your beautiful memories with your vauled friends</h3>
+		</div>
+    </div> 
+	<!-- 메인 텍스트 로딩 END -->	
+	
+	<!-- 로그인 + 회원가입 폼 Start -->
+	<div id="loginDiv" class="col-md-4 col-md-offset-4" style="top:10%;left:25%;display:none">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <i class="fa fa-lock"></i> Login</div>
+	        <div class="panel-body">
+	            <form id="formLogin" class="form-horizontal" role="form">
+	          <div class="form-group">
+	              <label for="userId" class="col-sm-3 control-label">Email</label>
+	              <div class="col-sm-9">
+	                  <input type="email" name="userId" id="userId" class="form-control" placeholder="Email" required>
+	              </div>
+	          </div>
+	          <div class="form-group">
+	              <label for="userPw" class="col-sm-3 control-label">Password</label>
+	              <div class="col-sm-9">
+	                  <input type="password" name="userPw" id="userPw" class="form-control"  placeholder="Password" required>
+	              </div>
+	          </div>
+	          <div class="form-group last">
+	              <div class="col-sm-offset-3 col-sm-9">
+	                  <button type="button" id="btnLogin" onclick="userLogin()" class="btn btn-success btn-sm">Sign in</button>
+	                  <button type="reset" class="btn btn-default btn-sm">Reset</button>
+	              </div>
+	          </div>
+	            </form>
+	        </div>
+            <div class="panel-footer">Not Registred?　<a href="#" id="btnNewUser" data-toggle="collapse" data-target="#formRegister">Register here</a>
+                <form id="formRegister" style="margin:15px;" class="form-horizontal collapse" role="form">
+	                <div class="form-group" style="margin-bottom:0">
+	                    <label for="registId" class="col-sm-3 control-label">Email</label>
+	                    <div class="col-sm-9">
+	                        <input type="email" class="form-control" name="registId" id="registId" placeholder="Email" required>
+	                    </div>
+	                    <span id="idCheck" style="font-size:11px;margin-left:111px;padding-top:10px"></span><br />
+	                </div>
+	                <div class="form-group" >
+	                    <label for="registPw" class="col-sm-3 control-label">Password</label>
+	                    <div class="col-sm-9">
+	                        <input name="registPw" id="registPw" type="password" class="form-control"placeholder="Password" required>
+	                    </div>
+	                </div>
+	                <div class="form-group" >
+	                    <label for="registName" class="col-sm-3 control-label">Name</label>
+	                    <div class="col-sm-9">
+	                        <input name="registName" id="registName" type="text" placeholder="Name"class="form-control" required>
+	                    </div>
+	                </div>
+	                <div class="form-group" >
+		              <label for="registNickname" class="col-sm-3 control-label">Nickname</label>
+		              <div class="col-sm-9">
+		                  <input name="registNickname" id="registNickname" type="text" placeholder="Nickname" class="form-control"  required>
+		              </div>
+	                </div>
+             		<div class="form-group last">
+                    	<div class="col-sm-offset-3 col-sm-9">
+                        	<button type="button" id="btnRegister" class="btn btn-success btn-sm">Regist</button>
+                            <button type="reset" class="btn btn-default btn-sm">Reset</button>
+                    	</div>
+                	</div>
+                </form>
+        	</div>
+        </div>
+    </div>
+    <!-- 로그인 + 회원가입 폼 End -->
+    
+	<!-- Add custom JS here -->
+	<script src="js/ebj/ebj_map.js"></script>
+	</body>
+</html>
